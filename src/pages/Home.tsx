@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, getFirestore } from "firebase/firestore";
 import { app } from "../Firebase";
 import logo from "../assets/1eq-foundation-logo.png";
+import Popup from "./WordExpandPopup";
 
 const Home = () => {
   const db = getFirestore(app);
@@ -573,7 +574,7 @@ const Home = () => {
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="flex justify-between items-center w-full px-10 py-4 bg-blue-800 text-white">
+      {/* <div className="flex justify-between items-center w-full px-10 py-4 bg-blue-800 text-white">
         <img src={logo} alt="Company Logo" />
         <div className="text-2xl font-bold cursor-pointer">Scholarships</div>
         <div className="text-2xl font-bold cursor-pointer">SSC</div>
@@ -584,10 +585,10 @@ const Home = () => {
         >
           Refresh
         </div>
-      </div>
-      <div className="flex gap-x-10 gap-y-5 w-full flex-wrap mt-5 p-10 justify-center items-center">
+      </div> */}
+      <div className="flex gap-1 w-full flex-wrap mt-1 p-1">
         {loading ? (
-          <div className="flex justify-center items-center h-96">
+          <div className="flex w-full flex-wrap justify-center items-center h-96">
             <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
@@ -597,27 +598,17 @@ const Home = () => {
                 key={index}
                 className={`border-2 py-2 px-4 rounded-md bg-white text-black cursor-pointer transition-all grid items-center justify-center`}
                 onClick={() => handleWordClick(item?.word)}
-                style={{
-                  height: expandedWord === item?.word ? "auto" : "4rem",
-                }}
               >
-                <div style={{color: item?.purchasedby && "blue", fontWeight: item?.purchasedby && "700"}}>{item?.word}</div>
+                <div
+                  style={{
+                    color: item?.purchasedby && "blue",
+                    fontWeight: item?.purchasedby && "700",
+                  }}
+                >
+                  {item?.word}
+                </div>
                 {expandedWord === item?.word && (
-                  <div className="mt-2 p-2 border-t-2 border-gray-300 bg-gray-100 text-gray-800">
-                    <strong>Meaning:</strong> {item?.meaning}
-                    {item?.purchasedby && (
-                      <div className="mt-2">
-                        <strong>Assigned to:</strong> {item?.purchasedby}
-                      </div>
-                    )}
-                    {item?.url && (
-                      <iframe
-                        className="mt-4 h-80 w-full"
-                        src={item?.url}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      ></iframe>
-                    )}
-                  </div>
+                  <Popup word={item} onClose={() => setExpandedWord(null)} />
                 )}
               </div>
             ))}
