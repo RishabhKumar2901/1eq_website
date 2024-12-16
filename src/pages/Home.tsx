@@ -596,7 +596,7 @@ const Home = () => {
             {words?.map((item, index) => (
               <div
                 key={index}
-                className={`border-2 py-2 px-4 rounded-md bg-white text-black cursor-pointer transition-all grid items-center justify-center`}
+                className={`border-2 py-2 px-4 rounded-md bg-white text-black cursor-pointer transition-all grid items-center justify-center hover:bg-slate-100 shadow-md active:bg-slate-100`}
                 onClick={() => handleWordClick(item?.word)}
               >
                 <div
