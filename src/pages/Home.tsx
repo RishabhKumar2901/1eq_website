@@ -586,7 +586,7 @@ const Home = () => {
           Refresh
         </div>
       </div> */}
-      <div className="flex gap-1 w-full flex-wrap mt-1 p-1">
+      <div className="flex gap-1 w-full flex-wrap mt-1 p-1 px-1.5">
         {loading ? (
           <div className="flex w-full flex-wrap justify-center items-center h-96">
             <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
