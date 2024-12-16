@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 // import { addDoc } from "firebase/firestore";
 import { collection, getDocs, getFirestore } from "firebase/firestore";
 import { app } from "../Firebase";
+import logo from "../assets/1eq-foundation-logo.png";
 
 const Home = () => {
   const db = getFirestore(app);
@@ -548,14 +549,32 @@ const Home = () => {
     }
   };
 
+  // const fetchWords = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const querySnapshot = await getDocs(collection(db, "words"));
+  //     const fetchedWords: any[] = [];
+  //     querySnapshot?.forEach((doc) => {
+  //       fetchedWords.push(doc.data());
+  //     });
+  //     fetchedWords.sort(() => Math.random() - 0.5);
+  //     const randomWords = fetchedWords.slice(0, 100);
+  //     setWords(randomWords);
+  //   } catch (error) {
+  //     console.error("Error fetching words: ", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   useEffect(() => {
     fetchWords();
   }, []);
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="flex justify-between w-full px-10 py-4 bg-blue-800 text-white">
-        <div className="text-2xl font-bold cursor-pointer">1EQ Website</div>
+      <div className="flex justify-between items-center w-full px-10 py-4 bg-blue-800 text-white">
+        <img src={logo} alt="Company Logo" />
         <div className="text-2xl font-bold cursor-pointer">Scholarships</div>
         <div className="text-2xl font-bold cursor-pointer">SSC</div>
         <div className="text-2xl font-bold cursor-pointer">Vocab</div>
@@ -568,19 +587,21 @@ const Home = () => {
       </div>
       <div className="flex gap-x-10 gap-y-5 w-full flex-wrap mt-5 p-10 justify-center items-center">
         {loading ? (
-          <div className="text-5xl">Loading...</div>
+          <div className="flex justify-center items-center h-96">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
         ) : (
           <>
             {words?.map((item, index) => (
               <div
                 key={index}
-                className={`border-2 border-black py-2 px-4 rounded-md bg-white text-black cursor-pointer transition-all grid items-center justify-center`}
+                className={`border-2 py-2 px-4 rounded-md bg-white text-black cursor-pointer transition-all grid items-center justify-center`}
                 onClick={() => handleWordClick(item?.word)}
                 style={{
                   height: expandedWord === item?.word ? "auto" : "4rem",
                 }}
               >
-                <div>{item?.word}</div>
+                <div style={{color: item?.purchasedby && "blue", fontWeight: item?.purchasedby && "700"}}>{item?.word}</div>
                 {expandedWord === item?.word && (
                   <div className="mt-2 p-2 border-t-2 border-gray-300 bg-gray-100 text-gray-800">
                     <strong>Meaning:</strong> {item?.meaning}
