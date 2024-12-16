@@ -613,7 +613,7 @@ const Home = () => {
           ))
         ) : (
           <div className="flex justify-center items-center w-full h-screen text-2xl">
-            No Words Found!
+            No Word Found!
           </div>
         )}
       </div>
