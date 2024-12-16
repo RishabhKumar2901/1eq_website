@@ -591,28 +591,30 @@ const Home = () => {
           <div className="flex w-full flex-wrap justify-center items-center h-96">
             <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
-        ) : (
-          <>
-            {words?.map((item, index) => (
+        ) : words?.length > 0 ? (
+          words?.map((item, index) => (
+            <div
+              key={index}
+              className={`border-2 py-2 px-4 rounded-md bg-white text-black cursor-pointer transition-all grid items-center justify-center hover:bg-slate-100 active:bg-slate-100`}
+              onClick={() => handleWordClick(item?.word)}
+            >
               <div
-                key={index}
-                className={`border-2 py-2 px-4 rounded-md bg-white text-black cursor-pointer transition-all grid items-center justify-center hover:bg-slate-100 active:bg-slate-100`}
-                onClick={() => handleWordClick(item?.word)}
+                style={{
+                  color: item?.purchasedby && "blue",
+                  fontWeight: item?.purchasedby && "700",
+                }}
               >
-                <div
-                  style={{
-                    color: item?.purchasedby && "blue",
-                    fontWeight: item?.purchasedby && "700",
-                  }}
-                >
-                  {item?.word}
-                </div>
-                {expandedWord === item?.word && (
-                  <Popup word={item} onClose={() => setExpandedWord(null)} />
-                )}
+                {item?.word}
               </div>
-            ))}
-          </>
+              {expandedWord === item?.word && (
+                <Popup word={item} onClose={() => setExpandedWord(null)} />
+              )}
+            </div>
+          ))
+        ) : (
+          <div className="flex justify-center items-center w-full h-screen text-2xl">
+            No Words Found!
+          </div>
         )}
       </div>
       {/* <button className="border-2 border-black bg-white p-4 rounded-lg cursor-pointer" onClick={() => addData()}>Add Data</button> */}
