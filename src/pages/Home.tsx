@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 // import { addDoc } from "firebase/firestore";
 import { collection, getDocs, getFirestore } from "firebase/firestore";
 import { app } from "../Firebase";
-import logo from "../assets/1eq-foundation-logo.png";
 import Popup from "./WordExpandPopup";
-import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 const Home = () => {
   const db = getFirestore(app);
@@ -12,7 +11,6 @@ const Home = () => {
   const [words, setWords] = useState<any[]>([]);
   const [expandedWord, setExpandedWord] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   //   const words = [
   //     {
@@ -576,19 +574,8 @@ const Home = () => {
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="flex justify-between items-center w-full px-10 py-4 bg-blue-800 text-white">
-        <img src={logo} alt="Company Logo" />
-        <div className="text-2xl font-bold cursor-pointer">Scholarships</div>
-        <div className="text-2xl font-bold cursor-pointer">SSC</div>
-        <div className="text-2xl font-bold cursor-pointer">Vocab</div>
-        <div
-          className="text-2xl font-bold cursor-pointer"
-          onClick={() => fetchWords()}
-        >
-          Refresh
-        </div>
-        <div className="text-2xl font-bold cursor-pointer" onClick={() => navigate("/signin")}>Signin</div>
-      </div>
+      <Navbar onRefreshClick={fetchWords} />
+     
       <div className="flex gap-1 w-full flex-wrap mt-1 p-1 px-1.5">
         {loading ? (
           <div className="flex w-full flex-wrap justify-center items-center h-96">
