@@ -1,32 +1,19 @@
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { app } from "../Firebase";
+import { AppDispatch, RootState } from "../redux/store";
+import { signIn } from "../redux/slices/authSlice";
 
 const Signin = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
-  const auth = getAuth(app);
-
-  const signIn = async () => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential?.user;
-      console.log("User Logged in:", user);
-    } catch (error) {
-      console.error("Error creating user:", error);
-    }
-  };
+  const authState = useSelector((state: RootState) => state?.auth);
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    signIn();
-    console.log("Sign In:", { email, password });
+    dispatch(signIn({ email, password }));
     setEmail("");
     setPassword("");
   };
@@ -74,8 +61,17 @@ const Signin = () => {
             type="submit"
             className="w-full p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
-            Sign In
+            {authState?.loading ? (
+              <div className="flex w-full flex-wrap justify-center items-center">
+                <div className="h-6 w-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              "Sign In"
+            )}
           </button>
+          {authState?.error && (
+            <div className="text-red-500 text-sm">{authState?.error}</div>
+          )}
           <div className="mt-4 text-center text-sm">
             <span>Don't have an account? </span>
             <div

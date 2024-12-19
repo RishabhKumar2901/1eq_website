@@ -1,52 +1,27 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/1eq-foundation-logo.png";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { app } from "../Firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../redux/store";
+import { createUser } from "../redux/slices/authSlice";
 
 const SignUp = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [pincode, setPincode] = useState<string>("");
   const navigate = useNavigate();
-  const db = getFirestore(app);
-  const auth = getAuth(app);
+  const authState = useSelector((state: RootState) => state?.auth);
+  const dispatch = useDispatch<AppDispatch>();
 
-  const createUser = async () => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential?.user;
-      console.log("User created:", user);
-
-      storeUserData(user);
-    } catch (error) {
-      console.error("Error creating user:", error);
-    }
-  };
-
-  const storeUserData = async (user: any) => {
-    try {
-      await setDoc(doc(db, "users", user?.uid), {
-        pincode: pincode,
-      });
-      console.log("User data stored successfully");
-    } catch (error) {
-      console.error("Error storing user data:", error);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    createUser();
-    console.log("Sign Up:", { email, password, pincode });
-    setEmail("");
-    setPassword("");
-    setPincode("");
+    try {
+      await dispatch(createUser({ email, password, pincode }));
+      setEmail("");
+      setPassword("");
+      setPincode("");
+      navigate("/signin");
+    } catch (error) {}
   };
 
   return (
@@ -109,8 +84,17 @@ const SignUp = () => {
             type="submit"
             className="w-full p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
-            Sign Up
+            {authState?.loading ? (
+              <div className="flex w-full flex-wrap justify-center items-center">
+                <div className="h-6 w-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              "Sign Up"
+            )}
           </button>
+          {authState?.error && (
+            <div className="text-red-500 text-sm">{authState?.error}</div>
+          )}
           <div className="mt-4 text-center text-sm">
             <span>Already have an account? </span>
             <div
