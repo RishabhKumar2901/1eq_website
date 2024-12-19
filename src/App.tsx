@@ -27,7 +27,7 @@ function App() {
           path="/signin"
           element={user ? <Navigate to="/" /> : <Signin />}
         />
-        <Route path="/mapdata" element={<UserMap />} />
+        <Route path="/userdistribution" element={<UserMap />} />
         <Route
           path="/assignword"
           element={user ? <AssignWord /> : <Navigate to="/signin" />}
