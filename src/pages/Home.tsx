@@ -9,6 +9,7 @@ const Home = () => {
   const [expandedWord, setExpandedWord] = useState<string | null>(null);
   const words = useSelector((state: RootState) => state?.data);
   const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state?.auth?.user);
 
   const handleWordClick = (word: string) => {
     setExpandedWord(expandedWord === word ? null : word);
@@ -53,10 +54,13 @@ const Home = () => {
               onClick={() => handleWordClick(item?.word)}
             >
               <div
-                style={{
-                  color: item?.purchasedby && "blue",
-                  fontWeight: item?.purchasedby && "700",
-                }}
+                className={`${
+                  item?.assignedTo &&
+                  (item?.assignedTo == user?.email ||
+                    item?.assignedTo == user?.uid)
+                    ? "text-blue-700 font-bold text-xl"
+                    : "text-black"
+                }`}
               >
                 {item?.word}
               </div>

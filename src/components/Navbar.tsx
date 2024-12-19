@@ -17,6 +17,12 @@ const Navbar = ({ onRefreshClick }: { onRefreshClick: () => void }) => {
       <div className="text-2xl font-bold cursor-pointer">Vocab</div> */}
       <div
         className="text-2xl font-bold cursor-pointer"
+        onClick={() => navigate("/assignword")}
+      >
+        Purchase Word
+      </div>
+      <div
+        className="text-2xl font-bold cursor-pointer"
         onClick={() => navigate("/mapdata")}
       >
         User Distribution
