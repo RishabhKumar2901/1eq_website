@@ -38,12 +38,60 @@ const AssignWord = () => {
     }
   };
 
-  const handleAssignWord = async () => {
-    if (!word.trim()) {
-      setMessage("Word cannot be empty.");
-      return;
+  const generateOrderId = async (amount: number) => {
+    try {
+      const response = await axios.post(
+        "https://api.razorpay.com/v1/orders",
+        {
+          amount: amount * 100,
+          currency: "INR",
+          receipt: `receipt_${Date.now()}`,
+          payment_capture: 1,
+        },
+        {
+          auth: {
+            username: "YOUR_RAZORPAY_KEY_ID",
+            password: "YOUR_RAZORPAY_SECRET",
+          },
+        }
+      );
+      return response.data.id;
+    } catch (error) {
+      console.error("Error generating Razorpay order:", error);
+      throw new Error("Failed to create order.");
     }
+  };
 
+  const openRazorpayCheckout = async (orderId: string, amount: number) => {
+    const options = {
+      key: "YOUR_RAZORPAY_KEY_ID",
+      amount: amount * 100,
+      currency: "INR",
+      name: "Word Purchase",
+      description: `Purchase of the word: ${word}`,
+      order_id: orderId,
+      handler: async (response: any) => {
+        try {
+          console.log("Payment successful:", response);
+          await assignWordToUser();
+        } catch (error) {
+          console.error("Error processing payment:", error);
+          setMessage("Payment successful, but word assignment failed.");
+        }
+      },
+      prefill: {
+        email: userId,
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
+  };
+
+  const assignWordToUser = async () => {
     const existingWord = words?.find((item: any) => item?.word === word);
 
     if (existingWord) {
@@ -52,31 +100,38 @@ const AssignWord = () => {
         return;
       }
 
-      try {
-        const wordDocRef = doc(db, "words", existingWord?.id);
-        await updateDoc(wordDocRef, { assignedTo: userId });
-        setMessage(`Word '${word}' has been successfully assigned to you.`);
-        dispatch(fetchData("words"));
-      } catch (error) {
-        console.error("Error updating word:", error);
-        setMessage("Failed to assign the word.");
-      }
+      const wordDocRef = doc(db, "words", existingWord?.id);
+      await updateDoc(wordDocRef, { assignedTo: userId });
+      setMessage(`Word '${word}' has been successfully assigned to you.`);
+      dispatch(fetchData("words"));
     } else {
-      try {
-        dispatch(
-          addData({
-            collectionName: "words",
-            data: { word, assignedTo: userId },
-          })
-        );
-        setMessage(`Word '${word}' has been created and assigned to you.`);
-      } catch (error) {
-        console.error("Error creating word:", error);
-        setMessage("Failed to create and assign the word.");
-      }
+      dispatch(
+        addData({
+          collectionName: "words",
+          data: { word, assignedTo: userId },
+        })
+      );
+      setMessage(`Word '${word}' has been created and assigned to you.`);
     }
 
     setWord("");
+  };
+
+  const handleAssignWord = async () => {
+    if (!word.trim()) {
+      setMessage("Word cannot be empty.");
+      return;
+    }
+
+    const amount = 100;
+
+    try {
+      const orderId = await generateOrderId(amount);
+      openRazorpayCheckout(orderId, amount);
+    } catch (error) {
+      console.error("Error processing Razorpay checkout:", error);
+      setMessage("Failed to initiate payment.");
+    }
   };
 
   return (
