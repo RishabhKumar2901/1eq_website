@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../redux/store";
 import { createUser } from "../redux/slices/authSlice";
+import Chatbot from "./Chatbot";
 
 const SignUp = () => {
   const [email, setEmail] = useState<string>("");
@@ -109,6 +110,8 @@ const SignUp = () => {
           </div>
         </form>
       </div>
+
+      <Chatbot />
     </div>
   );
 };

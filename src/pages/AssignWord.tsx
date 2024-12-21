@@ -7,6 +7,7 @@ import { db } from "../Firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { AppDispatch, RootState } from "../redux/store";
 import Navbar from "../components/Navbar";
+import Chatbot from "./Chatbot";
 
 const AssignWord = () => {
   const [word, setWord] = useState("");
@@ -201,6 +202,8 @@ const AssignWord = () => {
         )}
       </div>
     </div>
+
+    <Chatbot />
     </>
   );
 };

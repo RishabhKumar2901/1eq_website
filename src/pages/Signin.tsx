@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AppDispatch, RootState } from "../redux/store";
 import { signIn } from "../redux/slices/authSlice";
+import Chatbot from "./Chatbot";
 
 const Signin = () => {
   const [email, setEmail] = useState<string>("");
@@ -83,6 +84,8 @@ const Signin = () => {
           </div>
         </form>
       </div>
+
+      <Chatbot />
     </div>
   );
 };

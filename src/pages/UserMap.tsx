@@ -5,6 +5,7 @@ import Papa from "papaparse";
 import { Chart } from "react-google-charts";
 import { PincodeData } from "../PincodeData";
 import Navbar from "../components/Navbar";
+import Chatbot from "./Chatbot";
 
 type PinCodeCount = Record<string, number>;
 
@@ -117,6 +118,8 @@ const UserMap = () => {
         )}
       </div>
     </div>
+
+    <Chatbot />
     </>
   );
 };
