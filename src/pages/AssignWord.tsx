@@ -127,8 +127,9 @@ const AssignWord = () => {
     const amount = 100;
 
     try {
-      const orderId = await generateOrderId(amount);
-      openRazorpayCheckout(orderId, amount);
+      // const orderId = await generateOrderId(amount);
+      // openRazorpayCheckout(orderId, amount);
+      await assignWordToUser();
     } catch (error) {
       console.error("Error processing Razorpay checkout:", error);
       setMessage("Failed to initiate payment.");

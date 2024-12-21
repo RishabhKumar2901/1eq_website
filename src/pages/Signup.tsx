@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/1eq-foundation-logo.png";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../redux/store";
 import { createUser } from "../redux/slices/authSlice";
@@ -20,13 +19,15 @@ const SignUp = () => {
       setEmail("");
       setPassword("");
       setPincode("");
-      navigate("/signin");
+      if (!authState?.createUser?.error) {
+        navigate("/signin");
+      }
     } catch (error) {}
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <div className={`w-1/2 flex flex-col justify-center px-8 bg-white`}>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
         <h2 className="text-4xl font-bold mb-6">Sign Up</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -84,7 +85,7 @@ const SignUp = () => {
             type="submit"
             className="w-full p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
-            {authState?.loading ? (
+            {authState?.createUser?.loading ? (
               <div className="flex w-full flex-wrap justify-center items-center">
                 <div className="h-6 w-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               </div>
@@ -92,8 +93,10 @@ const SignUp = () => {
               "Sign Up"
             )}
           </button>
-          {authState?.error && (
-            <div className="text-red-500 text-sm">{authState?.error}</div>
+          {authState?.createUser?.error && (
+            <div className="text-red-500 text-sm">
+              {authState?.createUser?.error}
+            </div>
           )}
           <div className="mt-4 text-center text-sm">
             <span>Already have an account? </span>
@@ -105,10 +108,6 @@ const SignUp = () => {
             </div>
           </div>
         </form>
-      </div>
-
-      <div className={`w-1/2 flex justify-center items-center bg-blue-600`}>
-        <img src={logo} alt="Logo" className="w-1/4" />
       </div>
     </div>
   );

@@ -9,14 +9,26 @@ interface AuthState {
     email: string | null;
     displayName: string | null;
   } | null;
-  loading: boolean;
-  error: string | null;
+  signIn: {
+    loading: boolean;
+    error: string | null;
+  };
+  createUser: {
+    loading: boolean;
+    error: string | null;
+  };
 }
 
 const initialState: AuthState = {
   user: null,
-  loading: false,
-  error: null,
+  signIn: {
+    loading: false,
+    error: null,
+  },
+  createUser: {
+    loading: false,
+    error: null,
+  },
 };
 
 export const signIn = createAsyncThunk(
@@ -41,7 +53,7 @@ export const createUser = createAsyncThunk(
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      await setDoc(doc(db, 'users', user.uid), { pincode });
+      await setDoc(doc(db, 'users', email), { pincode });
       return { uid: user.uid, email: user.email, displayName: user.displayName };
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -63,41 +75,42 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(signIn.pending, (state: any) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(signIn.pending, (state) => {
+        state.signIn.loading = true;
+        state.signIn.error = null;
       })
-      .addCase(signIn.fulfilled, (state: any, { payload }) => {
-        state.loading = false;
+      .addCase(signIn.fulfilled, (state, { payload }) => {
+        state.signIn.loading = false;
         state.user = payload;
       })
-      .addCase(signIn.rejected, (state: any, { payload }) => {
-        state.loading = false;
-        state.error = payload as string;
+      .addCase(signIn.rejected, (state, { payload }) => {
+        state.signIn.loading = false;
+        state.signIn.error = payload as string;
         state.user = null;
       })
-      .addCase(createUser.pending, (state: any) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(createUser.pending, (state) => {
+        state.createUser.loading = true;
+        state.createUser.error = null;
       })
-      .addCase(createUser.fulfilled, (state: any) => {
-        state.loading = false;
+      .addCase(createUser.fulfilled, (state) => {
+        state.createUser.loading = false;
       })
-      .addCase(createUser.rejected, (state: any, { payload }) => {
-        state.loading = false;
-        state.error = payload as string;
+      .addCase(createUser.rejected, (state, { payload }) => {
+        state.createUser.loading = false;
+        state.createUser.error = payload as string;
       })
-      .addCase(signOut.pending, (state: any) => {
-        state.loading = true;
+      .addCase(signOut.pending, (state) => {
+        state.signIn.loading = true;
       })
-      .addCase(signOut.fulfilled, (state: any) => {
-        state.loading = false;
+      .addCase(signOut.fulfilled, (state) => {
+        state.signIn.loading = false;
         state.user = null;
-        state.error = null;
+        state.signIn.error = null;
+        state.createUser.error = null;
       })
-      .addCase(signOut.rejected, (state: any, { payload }) => {
-        state.loading = false;
-        state.error = payload as string;
+      .addCase(signOut.rejected, (state, { payload }) => {
+        state.signIn.loading = false;
+        state.signIn.error = payload as string;
       });
   },
 });

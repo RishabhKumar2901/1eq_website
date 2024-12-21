@@ -61,7 +61,7 @@ const Signin = () => {
             type="submit"
             className="w-full p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
-            {authState?.loading ? (
+            {authState?.signIn?.loading ? (
               <div className="flex w-full flex-wrap justify-center items-center">
                 <div className="h-6 w-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               </div>
@@ -69,8 +69,8 @@ const Signin = () => {
               "Sign In"
             )}
           </button>
-          {authState?.error && (
-            <div className="text-red-500 text-sm">{authState?.error}</div>
+          {authState?.signIn?.error && (
+            <div className="text-red-500 text-sm">{authState?.signIn?.error}</div>
           )}
           <div className="mt-4 text-center text-sm">
             <span>Don't have an account? </span>
