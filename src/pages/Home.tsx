@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import { AppDispatch, RootState } from "../redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchData } from "../redux/slices/dataSlice";
+import Chatbot from "./Chatbot";
 
 const Home = () => {
   const [expandedWord, setExpandedWord] = useState<string | null>(null);
@@ -15,30 +16,12 @@ const Home = () => {
     setExpandedWord(expandedWord === word ? null : word);
   };
 
-  // const fetchWords = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const querySnapshot = await getDocs(collection(db, "words"));
-  //     const fetchedWords: any[] = [];
-  //     querySnapshot?.forEach((doc) => {
-  //       fetchedWords.push(doc.data());
-  //     });
-  //     fetchedWords.sort(() => Math.random() - 0.5);
-  //     const randomWords = fetchedWords.slice(0, 100);
-  //     setWords(randomWords);
-  //   } catch (error) {
-  //     console.error("Error fetching words: ", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   useEffect(() => {
     dispatch(fetchData("words"));
   }, []);
 
   return (
-    <div className="flex flex-col justify-center items-center">
+    <div className="flex flex-col justify-center items-center relative">
       <Navbar onRefreshClick={() => dispatch(fetchData("words"))} />
 
       <div className="flex gap-1 w-full flex-wrap mt-1 p-1 px-1.5">
@@ -75,6 +58,8 @@ const Home = () => {
           </div>
         )}
       </div>
+
+      <Chatbot />
     </div>
   );
 };

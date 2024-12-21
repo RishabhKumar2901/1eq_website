@@ -11,6 +11,7 @@ import UserMap from "./pages/UserMap";
 import { useSelector } from "react-redux";
 import { RootState } from "./redux/store";
 import AssignWord from "./pages/AssignWord";
+import PurchasedWords from "./pages/PurchasedWords";
 
 function App() {
   const user = useSelector((state: RootState) => state?.auth?.user);
@@ -31,6 +32,10 @@ function App() {
         <Route
           path="/assignword"
           element={user ? <AssignWord /> : <Navigate to="/signin" />}
+        />
+        <Route
+          path="/purchasedwords"
+          element={user ? <PurchasedWords /> : <Navigate to="/signin" />}
         />
       </Routes>
     </Router>

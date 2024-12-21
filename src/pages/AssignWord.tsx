@@ -6,6 +6,7 @@ import { addData, fetchData } from "../redux/slices/dataSlice";
 import { db } from "../Firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { AppDispatch, RootState } from "../redux/store";
+import Navbar from "../components/Navbar";
 
 const AssignWord = () => {
   const [word, setWord] = useState("");
@@ -135,7 +136,9 @@ const AssignWord = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <>
+    <Navbar />
+    <div className="flex flex-col items-center justify-center h-96">
       <div className="bg-white p-6 rounded-lg shadow-md w-96">
         <h2 className="text-2xl font-bold mb-4 text-center">Purchase Word</h2>
         <Downshift
@@ -197,6 +200,7 @@ const AssignWord = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 
