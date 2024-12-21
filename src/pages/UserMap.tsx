@@ -71,6 +71,12 @@ const UserMap = () => {
     getUserCountByPincode().then(setPinCodeCount);
   }, []);
 
+  const handleRefresh = () => {
+    setPinCodeCount({});
+    setStatePinCodeCount({});
+    getUserCountByPincode().then(setPinCodeCount);
+  }
+
   const geoData = [
     ["State", "Users"],
     ...Object.entries(statePinCodeCount).map(([state, count]) => [
@@ -81,7 +87,7 @@ const UserMap = () => {
 
   return (
     <>
-    <Navbar />
+    <Navbar onRefreshClick={() => handleRefresh()} />
     <div className="container mx-auto px-4 py-8">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full md:w-4/5 lg:w-3/4 mx-auto">
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">
