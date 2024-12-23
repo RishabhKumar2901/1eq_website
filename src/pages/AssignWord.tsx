@@ -52,8 +52,8 @@ const AssignWord = () => {
         },
         {
           auth: {
-            username: "YOUR_RAZORPAY_KEY_ID",
-            password: "YOUR_RAZORPAY_SECRET",
+            username: "rzp_test_Wd1RYd0fng3673",
+            password: "KhPfZInizpNkCvJTWAYJlgIG",
           },
         }
       );
@@ -66,7 +66,7 @@ const AssignWord = () => {
 
   const openRazorpayCheckout = async (orderId: string, amount: number) => {
     const options = {
-      key: "YOUR_RAZORPAY_KEY_ID",
+      key: "rzp_test_Wd1RYd0fng3673",
       amount: amount * 100,
       currency: "INR",
       name: "Word Purchase",
