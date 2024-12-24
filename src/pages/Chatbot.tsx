@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import { arrayUnion, collection, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc } from "firebase/firestore";
+import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../Firebase";
 
 interface Message {
@@ -71,25 +71,19 @@ const Chatbot = () => {
   };
 
   useEffect(() => {
-    const fetchMessages = async () => {
+    const fetchMessages = () => {
       if (user?.email) {
-        try {
-          const chatDocRef = doc(db, 'chat', user?.email);
-          const docSnapshot = await getDoc(chatDocRef);
-
+        const chatDocRef = doc(db, "chat", user?.email);
+        const unsubscribe = onSnapshot(chatDocRef, (docSnapshot: any) => {
           if (docSnapshot.exists()) {
-            const data = docSnapshot.data();
-            if (data?.messages) {
-              setMessages(data.messages);
-            }
+            setMessages(docSnapshot.data()?.messages || []);
           }
-        } catch (error) {
-          console.error('Error fetching messages from Firestore:', error);
-        }
+        });
+        return () => unsubscribe();
       }
     };
 
-    fetchMessages();
+    return fetchMessages();
   }, [user?.email]);
 
   return (
@@ -115,7 +109,7 @@ const Chatbot = () => {
           <div className="flex-1 overflow-auto mb-4">
             {messages?.length == 0 && (
               <div className="text-gray-600 mt-4">
-                Chatbot messages will appear here...
+                Chat messages will appear here...
               </div>
             )}
             <div className="space-y-2">
