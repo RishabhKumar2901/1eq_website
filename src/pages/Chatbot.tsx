@@ -1,12 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import {
+  arrayUnion,
+  collection,
+  doc,
+  getDocs,
+  onSnapshot,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+  orderBy,
+  limit,
+} from "firebase/firestore";
 import { db } from "../Firebase";
 
 interface Message {
   sender: "user" | "bot";
   content: string;
+  timestamp: Date;
 }
 
 const Chatbot = () => {
@@ -22,48 +35,72 @@ const Chatbot = () => {
     setMessage(e.target.value);
   };
 
-  // const handleSendMessage = () => {
-  //   if (message.trim()) {
-  //     setMessages((prevMessages) => [
-  //       ...prevMessages,
-  //       { sender: "user", content: message },
-  //     ]);
-  //     setMessage("");
-
-  //     setTimeout(() => {
-  //       setMessages((prevMessages) => [
-  //         ...prevMessages,
-  //         { sender: "bot", content: "This is a bot response!" },
-  //       ]);
-  //     }, 1000);
-  //   }
-  // };
-
   const handleSendMessage = async () => {
-    if (message?.trim()) {
+    if (message.trim() && user?.email) {
       try {
         setLoading(true);
-        if (user?.email) {
-          const chatDocRef = doc(db, 'chat', user?.email);
-          const docSnapshot = await getDoc(chatDocRef);
-          if (!docSnapshot.exists()) {
-            await setDoc(chatDocRef, { messages: [] });
-          }
-          await updateDoc(chatDocRef, {
+
+        const chatCollection = collection(db, "chat");
+        const chatQuery = query(
+          chatCollection,
+          where("userEmail", "==", user.email),
+          orderBy("createdAt", "desc"),
+          limit(1)
+        );
+        const querySnapshot = await getDocs(chatQuery);
+
+        let currentTicket: any = null;
+        if (!querySnapshot.empty) {
+          currentTicket = querySnapshot.docs[0];
+        }
+
+        if (currentTicket && currentTicket.data().status === "closed") {
+          const newTicketRef = doc(chatCollection);
+          await setDoc(newTicketRef, {
+            userEmail: user.email,
+            status: "open",
+            assignedTo: null,
+            messages: [
+              {
+                sender: "user",
+                content: message,
+                timestamp: new Date(),
+              },
+            ],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+        } else if (currentTicket) {
+          const currentTicketRef = doc(db, "chat", currentTicket.id);
+          await updateDoc(currentTicketRef, {
             messages: arrayUnion({
-              sender: 'user',
+              sender: "user",
               content: message,
               timestamp: new Date(),
             }),
+            updatedAt: new Date(),
           });
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            { sender: 'user', content: message },
-          ]);
-          setMessage('');
+        } else {
+          const newTicketRef = doc(chatCollection);
+          await setDoc(newTicketRef, {
+            userEmail: user.email,
+            status: "open",
+            assignedTo: null,
+            messages: [
+              {
+                sender: "user",
+                content: message,
+                timestamp: new Date(),
+              },
+            ],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
         }
+
+        setMessage("");
       } catch (error) {
-        console.error('Error saving message to Firestore:', error);
+        console.error("Error handling message:", error);
       } finally {
         setLoading(false);
       }
@@ -71,19 +108,26 @@ const Chatbot = () => {
   };
 
   useEffect(() => {
-    const fetchMessages = () => {
-      if (user?.email) {
-        const chatDocRef = doc(db, "chat", user?.email);
-        const unsubscribe = onSnapshot(chatDocRef, (docSnapshot: any) => {
-          if (docSnapshot.exists()) {
-            setMessages(docSnapshot.data()?.messages || []);
+    if (user?.email) {
+      const chatCollection = collection(db, "chat");
+      const chatQuery = query(
+        chatCollection,
+        where("userEmail", "==", user.email),
+        orderBy("createdAt", "desc"),
+        limit(1)
+      );
+
+      const unsubscribe = onSnapshot(chatQuery, (querySnapshot) => {
+        querySnapshot.forEach((docSnapshot) => {
+          const data = docSnapshot.data();
+          if (data?.messages) {
+            setMessages(data.messages);
           }
         });
-        return () => unsubscribe();
-      }
-    };
+      });
 
-    return fetchMessages();
+      return () => unsubscribe();
+    }
   }, [user?.email]);
 
   return (
@@ -107,7 +151,7 @@ const Chatbot = () => {
       {isOpen && (
         <div className="w-80 h-96 bg-white shadow-lg rounded-lg p-4 flex flex-col">
           <div className="flex-1 overflow-auto mb-4">
-            {messages?.length == 0 && (
+            {messages?.length === 0 && (
               <div className="text-gray-600 mt-4">
                 Chat messages will appear here...
               </div>
@@ -116,12 +160,13 @@ const Chatbot = () => {
               {messages?.map((msg, index) => (
                 <div
                   key={index}
-                  className={`p-2 rounded-md ${msg.sender === "user"
-                    ? "bg-blue-200 text-blue-800"
-                    : "bg-gray-200 text-gray-800"
-                    }`}
+                  className={`p-2 rounded-md ${
+                    msg.sender === "user"
+                      ? "bg-blue-200 text-blue-800"
+                      : "bg-gray-200 text-gray-800"
+                  }`}
                 >
-                  {msg.sender === "user" && "You"}: {msg.content}
+                  {msg.sender === "user" ? "You" : "1EQ"}: {msg.content}
                 </div>
               ))}
             </div>
@@ -139,10 +184,13 @@ const Chatbot = () => {
               onClick={handleSendMessage}
               className="bg-blue-500 text-white px-4 py-1 rounded-r-md"
             >
-              {loading ? <div className="flex w-full flex-wrap justify-center items-center">
-                <div className="w-2 h-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              </div> :
-                "Send"}
+              {loading ? (
+                <div className="flex w-full flex-wrap justify-center items-center">
+                  <div className="w-2 h-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                "Send"
+              )}
             </button>
           </div>
         </div>

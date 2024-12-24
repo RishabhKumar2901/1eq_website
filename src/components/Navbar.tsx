@@ -37,6 +37,18 @@ const Navbar = ({ onRefreshClick }: NavbarProps) => {
       >
         User Distribution
       </div>
+      <div
+        className="text-2xl font-bold cursor-pointer"
+        onClick={() => navigate("/chatadmindashboard")}
+      >
+        Chat Admin Dashboard
+      </div>
+      <div
+        className="text-2xl font-bold cursor-pointer"
+        onClick={() => navigate("/chatemployeedashboard")}
+      >
+        Chat Employee Dashboard
+      </div>
       {onRefreshClick && (
         <div
           className="text-2xl font-bold cursor-pointer"

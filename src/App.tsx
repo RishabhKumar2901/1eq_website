@@ -12,6 +12,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "./redux/store";
 import AssignWord from "./pages/AssignWord";
 import PurchasedWords from "./pages/PurchasedWords";
+import ChatAdminDashboard from "./pages/ChatAdminDashboard";
+import ChatEmployeeDashboard from "./pages/ChatEmployeeDashboard";
 
 function App() {
   const user = useSelector((state: RootState) => state?.auth?.user);
@@ -36,6 +38,14 @@ function App() {
         <Route
           path="/purchasedwords"
           element={user ? <PurchasedWords /> : <Navigate to="/signin" />}
+        />
+         <Route
+          path="/chatadmindashboard"
+          element={user ? <ChatAdminDashboard /> : <Navigate to="/signin" />}
+        />
+        <Route
+          path="/chatemployeedashboard"
+          element={user ? <ChatEmployeeDashboard /> : <Navigate to="/signin" />}
         />
       </Routes>
     </Router>
