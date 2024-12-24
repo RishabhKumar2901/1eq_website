@@ -1,206 +1,133 @@
 import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../redux/store";
 import {
-    arrayUnion,
     collection,
     doc,
-    getDoc,
-    getDocs,
-    query,
-    updateDoc,
-    where,
     onSnapshot,
-    orderBy
+    updateDoc,
+    query
 } from "firebase/firestore";
 import { db } from "../Firebase";
-import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { fetchData } from "../redux/slices/dataSlice";
 
 interface Message {
-    sender: "employee" | "bot" | "user";
+    sender: "user" | "bot";
     content: string;
     timestamp: Date;
 }
 
-const ChatEmployeeDashboard = () => {
-    const [tickets, setTickets] = useState<any[]>([]);
-    const [activeChat, setActiveChat] = useState<string | null>(null);
-    const [message, setMessage] = useState<string>("");
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [isTicketClosed, setIsTicketClosed] = useState<boolean>(false);
-    const user = useSelector((state: RootState) => state?.auth?.user);
+interface Ticket {
+    id: string;
+    userEmail: string;
+    messages: Message[];
+    assignedTo: string | null;
+    status: "open" | "in_progress" | "closed";
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const ChatAdminDashboard = () => {
+    const [tickets, setTickets] = useState<Ticket[]>([]);
+    const [assignedToMap, setAssignedToMap] = useState<{ [key: string]: string }>(
+        {}
+    );
+    const users = useSelector((state: RootState) => state?.data?.items);
+    const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
-        const fetchAssignedTickets = async () => {
-            if (user?.email) {
-                try {
-                    const chatQuery = query(
-                        collection(db, "chat"),
-                        where("assignedTo", "==", user.email),
-                        orderBy("createdAt", "desc")
-                    );
-                    const chatDocsSnapshot = await getDocs(chatQuery);
-                    const ticketsData = chatDocsSnapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        ...doc.data(),
-                    }));
-                    setTickets(ticketsData);
-                } catch (error) {
-                    console.error("Error fetching assigned tickets:", error);
+        dispatch(fetchData("users"));
+    }, []);
+
+    useEffect(() => {
+        const chatCollection = collection(db, "chat");
+        const chatQuery = query(chatCollection);
+        const unsubChatSnapshot = onSnapshot(chatQuery, (snapshot) => {
+            const updatedTicketsData: Ticket[] = [];
+            const updatedAssignedToMap: { [key: string]: string } = { ...assignedToMap };
+
+            snapshot.forEach((docSnapshot) => {
+                const data = docSnapshot.data() as Ticket;
+                updatedTicketsData.push({...data,id:docSnapshot?.id});
+                if (data.assignedTo) {
+                    updatedAssignedToMap[docSnapshot.id] = data.assignedTo;
                 }
-            }
-        };
+            });
 
-        fetchAssignedTickets();
-
-        const unsubChatSnapshot = onSnapshot(
-            query(collection(db, "chat")),
-            (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === "modified" || change.type === "added") {
-                        const updatedChatDocRef = doc(db, "chat", change.doc.id);
-                        getDoc(updatedChatDocRef).then((docSnapshot) => {
-                            if (docSnapshot.exists()) {
-                                setMessages(() => {
-                                    const newMessages = docSnapshot.data()?.messages || [];
-                                    return newMessages;
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        );
+            setTickets(updatedTicketsData);
+            setAssignedToMap(updatedAssignedToMap);
+        });
 
         return () => unsubChatSnapshot();
-    }, [user?.email, isTicketClosed]);
+    }, []);
 
-    const handleChatOpen = async (ticketId: string) => {
-        setActiveChat(ticketId);
+    const assignTicket = async (ticketId: string, employeeEmail: string) => {
         try {
-            const chatDocRef = doc(db, "chat", ticketId);
-            const docSnapshot = await getDoc(chatDocRef);
-            if (docSnapshot.exists()) {
-                setMessages(docSnapshot.data()?.messages || []);
+            if (!employeeEmail) {
+                alert("Please select an employee to assign the ticket to.");
+                return;
             }
-        } catch (error) {
-            console.error("Error fetching chat messages:", error);
-        }
-    };
-
-    const handleSendMessage = async () => {
-        if (message.trim() && activeChat) {
-            try {
-                setLoading(true);
-                const chatDocRef = doc(db, "chat", activeChat);
-                await updateDoc(chatDocRef, {
-                    messages: arrayUnion({
-                        sender: "employee",
-                        content: message,
-                        timestamp: new Date(),
-                    }),
-                    updatedAt: new Date(),
-                });
-                setMessage("");
-            } catch (error) {
-                console.error("Error sending message:", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-    };
-
-    const closeTicket = async (ticketId: string) => {
-        try {
             const ticketRef = doc(db, "chat", ticketId);
-            await updateDoc(ticketRef, { status: "closed" });
-            setIsTicketClosed(true);
-            alert("Ticket closed successfully.")
+            await updateDoc(ticketRef, {
+                assignedTo: employeeEmail,
+                status: "in_progress",
+                updatedAt: new Date(),
+            });
+            alert(`Ticket ${ticketId} assigned to ${employeeEmail}`);
         } catch (error) {
-            console.error("Error closing ticket:", error);
+            console.error("Error assigning ticket:", error);
         }
+    };
+
+    const handleAssignmentChange = (ticketId: string, employeeEmail: string) => {
+        setAssignedToMap((prev) => ({ ...prev, [ticketId]: employeeEmail }));
+        assignTicket(ticketId, employeeEmail);
     };
 
     return (
-        <div className="flex h-screen bg-gray-100">
-            <div className="w-1/4 bg-white p-6 overflow-y-auto">
-                <h1 className="text-2xl font-bold mb-4">My Tickets</h1>
-                <ul className="space-y-4">
-                    {tickets.map((ticket) => (
-                        <li
-                            key={ticket.id}
-                            className="bg-gray-100 p-4 shadow rounded"
-                        >
+        <div className="p-6 bg-gray-100 min-h-screen">
+            <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+            <ul className="space-y-4">
+                {tickets.map((ticket) => (
+                    <li key={ticket?.id} className="bg-white p-4 shadow rounded flex flex-col">
+                        <p>
+                            <strong>Customer:</strong> {ticket?.userEmail}
+                        </p>
+                        <p>
+                            <strong>Status:</strong> {ticket?.status}
+                        </p>
+                        {assignedToMap[ticket?.id] && (
                             <p>
-                                <strong>Customer ID:</strong> {ticket.id}
+                                <strong>Assigned To:</strong> {assignedToMap[ticket?.id]}
                             </p>
-                            <p>
-                                <strong>Status:</strong> {ticket.status}
-                            </p>
-                            <button
-                                onClick={() => handleChatOpen(ticket.id)}
-                                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
-                            >
-                                Chat with Customer
-                            </button>
-                            <button
-                                onClick={() => closeTicket(ticket.id)}
-                                className="mt-2 ml-2 bg-red-500 text-white px-4 py-2 rounded"
-                            >
-                                Close Ticket
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-
-            <div className="w-3/4 bg-white p-6 overflow-auto">
-                {activeChat && (
-                    <div>
-                        <h2 className="text-xl font-bold mb-4">
-                            Chat with Ticket {activeChat}
-                        </h2>
-                        <div className="flex-1 h-full mb-4 overflow-auto">
-                            {messages.map((msg, index) => (
-                                <div
-                                    key={index}
-                                    className={`p-2 rounded-md mt-2 ${
-                                        msg.sender === "employee"
-                                            ? "bg-blue-200 text-blue-800"
-                                            : "bg-gray-200 text-gray-800"
-                                    }`}
-                                >
-                                    {msg.sender === "employee" ? "You" : "Customer"}: {msg.content}
+                        )}
+                        {!assignedToMap[ticket?.id] && (
+                            <>
+                                <div className="flex items-center mt-2">
+                                    <label htmlFor={`assignedTo-${ticket?.id}`} className="mr-2">
+                                        <strong>Assigned To:</strong>
+                                    </label>
+                                    <select
+                                        id={`assignedTo-${ticket.id}`}
+                                        className="border-2 p-1"
+                                        onChange={(e) => handleAssignmentChange(ticket.id, e.target.value)}
+                                        value={assignedToMap[ticket.id] || ""}
+                                    >
+                                        <option value="">Select an option</option>
+                                        {users.map((item, index) => (
+                                            <option key={index} value={item.id}>
+                                                {item.id}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
-                            ))}
-                        </div>
-
-                        <div className="flex">
-                            <input
-                                type="text"
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                className="border rounded-l-md w-full px-2 py-1"
-                                placeholder="Type a message..."
-                            />
-                            <button
-                                onClick={handleSendMessage}
-                                className="bg-blue-500 text-white px-4 py-1 rounded-r-md"
-                            >
-                                {loading ? (
-                                    <div className="flex w-full flex-wrap justify-center items-center">
-                                        <div className="w-2 h-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    </div>
-                                ) : (
-                                    "Send"
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </div>
+                            </>
+                        )}
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 };
 
-export default ChatEmployeeDashboard;
+export default ChatAdminDashboard;

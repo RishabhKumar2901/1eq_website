@@ -120,6 +120,7 @@ const ChatEmployeeDashboard = () => {
             const ticketRef = doc(db, "chat", ticketId);
             await updateDoc(ticketRef, { status: "closed" });
             setIsTicketClosed(true);
+            alert("Ticket closed successfully.")
         } catch (error) {
             console.error("Error closing ticket:", error);
         }
