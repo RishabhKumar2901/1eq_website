@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../Firebase";
 import { fetchData } from "../redux/slices/dataSlice";
+import Navbar from "../components/Navbar";
 
 interface Message {
     sender: "user" | "bot";
@@ -85,6 +86,8 @@ const ChatAdminDashboard = () => {
     };
 
     return (
+        <>
+        <Navbar />
         <div className="p-6 bg-gray-100 min-h-screen">
             <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
             <ul className="space-y-4">
@@ -127,6 +130,7 @@ const ChatAdminDashboard = () => {
                 ))}
             </ul>
         </div>
+    </>
     );
 };
 
