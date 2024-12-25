@@ -72,7 +72,12 @@ export const signOut = createAsyncThunk('auth/signOut', async (_, { rejectWithVa
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    resetSignInState: (state) => {
+      state.signIn.loading = false;
+      state.signIn.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(signIn.pending, (state) => {
@@ -114,5 +119,7 @@ const authSlice = createSlice({
       });
   },
 });
+
+export const { resetSignInState } = authSlice.actions;
 
 export default authSlice.reducer;

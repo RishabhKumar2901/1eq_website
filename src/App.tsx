@@ -1,51 +1,37 @@
 import {
   BrowserRouter as Router,
   Route,
-  Routes,
-  Navigate,
+  Routes
 } from "react-router-dom";
 import Home from "./pages/Home";
-import Signup from "./pages/Signup";
-import Signin from "./pages/Signin";
 import UserMap from "./pages/UserMap";
-import { useSelector } from "react-redux";
-import { RootState } from "./redux/store";
 import AssignWord from "./pages/AssignWord";
 import PurchasedWords from "./pages/PurchasedWords";
 import ChatAdminDashboard from "./pages/ChatAdminDashboard";
 import ChatEmployeeDashboard from "./pages/ChatEmployeeDashboard";
 
 function App() {
-  const user = useSelector((state: RootState) => state?.auth?.user);
 
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route
-          path="/signup"
-          element={user ? <Navigate to="/" /> : <Signup />}
-        />
-        <Route
-          path="/signin"
-          element={user ? <Navigate to="/" /> : <Signin />}
-        />
         <Route path="/userdistribution" element={<UserMap />} />
         <Route
           path="/assignword"
-          element={user ? <AssignWord /> : <Navigate to="/signin" />}
+          element={<AssignWord />}
         />
         <Route
           path="/purchasedwords"
-          element={user ? <PurchasedWords /> : <Navigate to="/signin" />}
+          element={<PurchasedWords />}
         />
-         <Route
+        <Route
           path="/chatadmindashboard"
-          element={user ? <ChatAdminDashboard /> : <Navigate to="/signin" />}
+          element={<ChatAdminDashboard />}
         />
         <Route
           path="/chatemployeedashboard"
-          element={user ? <ChatEmployeeDashboard /> : <Navigate to="/signin" />}
+          element={<ChatEmployeeDashboard />}
         />
       </Routes>
     </Router>

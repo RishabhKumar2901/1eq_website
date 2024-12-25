@@ -1,17 +1,16 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../redux/store";
 import { createUser } from "../redux/slices/authSlice";
-import Chatbot from "./Chatbot";
+import Signin from "./Signin";
 
-const SignUp = () => {
+const Signup = ({ onClose }: { onClose: () => void }) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [pincode, setPincode] = useState<string>("");
-  const navigate = useNavigate();
   const authState = useSelector((state: RootState) => state?.auth);
   const dispatch = useDispatch<AppDispatch>();
+  const [showSignin, setShowSignin] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,15 +20,25 @@ const SignUp = () => {
       setPassword("");
       setPincode("");
       if (!authState?.createUser?.error) {
-        navigate("/signin");
+        setShowSignin(true);
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
+  if (showSignin) {
+    return <Signin onClose={onClose} />;
+  }
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
-        <h2 className="text-4xl font-bold mb-6">Sign Up</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-700"
+        >
+          ✖
+        </button>
+        <h2 className="text-4xl font-bold mb-6 text-black">Sign Up</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
@@ -43,7 +52,7 @@ const SignUp = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-black"
               placeholder="Enter your email"
               required
             />
@@ -60,7 +69,7 @@ const SignUp = () => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-black"
               placeholder="Enter your password"
               required
             />
@@ -77,7 +86,7 @@ const SignUp = () => {
               id="pincode"
               value={pincode}
               onChange={(e) => setPincode(e.target.value)}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-black"
               placeholder="Enter your pincode"
               required
             />
@@ -99,21 +108,19 @@ const SignUp = () => {
               {authState?.createUser?.error}
             </div>
           )}
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-4 text-center text-sm text-black">
             <span>Already have an account? </span>
             <div
               className="text-blue-500 hover:underline cursor-pointer"
-              onClick={() => navigate("/signin")}
+              onClick={() => setShowSignin(true)}
             >
               Sign In
             </div>
           </div>
         </form>
       </div>
-
-      <Chatbot />
     </div>
   );
 };
 
-export default SignUp;
+export default Signup;
