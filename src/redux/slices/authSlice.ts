@@ -1,13 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import { auth, db } from '../../Firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 interface AuthState {
   user: {
     uid: string | null;
     email: string | null;
     displayName: string | null;
+    role?: string;
   } | null;
   signIn: {
     loading: boolean;
@@ -37,7 +38,15 @@ export const signIn = createAsyncThunk(
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      return { uid: user.uid, email: user.email, displayName: user.displayName };
+      if (user?.email) {
+        const userDocRef = doc(db, 'users', user?.email);
+        const userDoc = await getDoc(userDocRef);
+        const role = userDoc?.exists() ? userDoc?.data()?.role : '';
+        return { uid: user?.uid, email: user?.email, displayName: user?.displayName, role };
+      }
+      else {
+        return { uid: user?.uid, email: user?.email, displayName: user?.displayName };
+      }
     } catch (error: any) {
       return rejectWithValue(error.message);
     }

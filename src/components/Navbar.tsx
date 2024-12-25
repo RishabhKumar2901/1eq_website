@@ -5,6 +5,7 @@ import { AppDispatch, RootState } from "../redux/store";
 import { signOut } from "../redux/slices/authSlice";
 import { useState } from "react";
 import Signin from "../pages/Signin";
+import { ROLE_ADMIN, ROLE_EMPLOYEE, ROLE_USER } from "../static/Variables";
 
 interface NavbarProps {
   onRefreshClick?: () => void;
@@ -12,14 +13,14 @@ interface NavbarProps {
 
 const Navbar = ({ onRefreshClick }: NavbarProps) => {
   const navigate = useNavigate();
-  const authState = useSelector((state: RootState) => state?.auth);
+  const user = useSelector((state: RootState) => state?.auth?.user);
   const dispatch = useDispatch<AppDispatch>();
   const [isSignInOpen, setSignInOpen] = useState(false);
-
+  const role = useSelector((state: RootState) => state?.auth?.user?.role);
   const toggleSignIn = () => setSignInOpen(!isSignInOpen);
 
   const handleNavigation = (path: string) => {
-    if (authState?.user) {
+    if (user) {
       navigate(path);
     } else {
       setSignInOpen(true);
@@ -34,36 +35,44 @@ const Navbar = ({ onRefreshClick }: NavbarProps) => {
         className="cursor-pointer"
         onClick={() => navigate("/")}
       />
-      <div
-        className="text-2xl font-bold cursor-pointer"
-        onClick={() => handleNavigation("/assignword")}
-      >
-        Purchase Word
-      </div>
-      <div
-        className="text-2xl font-bold cursor-pointer"
-        onClick={() => handleNavigation("/purchasedwords")}
-      >
-        Words Purchased
-      </div>
+      {(!role || role == ROLE_USER || role == undefined) &&
+        <>
+          <div
+            className="text-2xl font-bold cursor-pointer"
+            onClick={() => handleNavigation("/assignword")}
+          >
+            Purchase Word
+          </div>
+          <div
+            className="text-2xl font-bold cursor-pointer"
+            onClick={() => handleNavigation("/purchasedwords")}
+          >
+            Words Purchased
+          </div>
+        </>
+      }
       <div
         className="text-2xl font-bold cursor-pointer"
         onClick={() => handleNavigation("/userdistribution")}
       >
         User Distribution
       </div>
-      <div
-        className="text-2xl font-bold cursor-pointer"
-        onClick={() => handleNavigation("/chatadmindashboard")}
-      >
-        Chat Admin Dashboard
-      </div>
-      <div
-        className="text-2xl font-bold cursor-pointer"
-        onClick={() => handleNavigation("/chatemployeedashboard")}
-      >
-        Chat Employee Dashboard
-      </div>
+      {role == ROLE_ADMIN &&
+        <div
+          className="text-2xl font-bold cursor-pointer"
+          onClick={() => handleNavigation("/chatadmindashboard")}
+        >
+          Admin Chat Dashboard
+        </div>
+      }
+      {role == ROLE_EMPLOYEE &&
+        <div
+          className="text-2xl font-bold cursor-pointer"
+          onClick={() => handleNavigation("/chatemployeedashboard")}
+        >
+          Employee Chat Dashboard
+        </div>
+      }
       {onRefreshClick && (
         <div
           className="text-2xl font-bold cursor-pointer"
@@ -72,7 +81,7 @@ const Navbar = ({ onRefreshClick }: NavbarProps) => {
           Refresh
         </div>
       )}
-      {authState?.user ? (
+      {user ? (
         <div
           className="text-2xl font-bold cursor-pointer"
           onClick={() => dispatch(signOut())}

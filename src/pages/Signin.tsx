@@ -11,10 +11,10 @@ const Signin = ({ onClose }: { onClose: () => void }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [showSignup, setShowSignup] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const resultAction = dispatch(signIn({ email, password }));
+      const resultAction = await dispatch(signIn({ email, password }));
       setEmail("");
       setPassword("");
       if (signIn?.fulfilled?.match(resultAction)) {
