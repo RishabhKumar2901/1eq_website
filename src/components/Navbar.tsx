@@ -61,9 +61,9 @@ const Navbar = ({ onRefreshClick }: NavbarProps) => {
       <>
        <div
           className="text-2xl font-bold cursor-pointer"
-          onClick={() => handleNavigation("/createword")}
+          onClick={() => handleNavigation("/manageword")}
         >
-          Create Word
+          Manage Word
         </div>
         <div
           className="text-2xl font-bold cursor-pointer"

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Downshift from "downshift";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,6 +8,8 @@ import { doc, updateDoc } from "firebase/firestore";
 import { AppDispatch, RootState } from "../redux/store";
 import Navbar from "../components/Navbar";
 import Chatbot from "./Chatbot";
+import { fetchSuggestions } from "../static/Functions";
+import debounce from "lodash.debounce";
 
 const AssignWord = () => {
   const [word, setWord] = useState("");
@@ -17,29 +19,30 @@ const AssignWord = () => {
   const words = useSelector((state: RootState) => state.data.items);
   const dispatch = useDispatch<AppDispatch>();
 
-  const fetchSuggestions = async (value: string) => {
-    try {
-      const response = await axios.get(`https://api.datamuse.com/words`, {
-        params: { sp: `${value}*`, max: 10 },
-      });
-      setSuggestions(
-        response?.data?.map((item: { word: string }) => item?.word)
-      );
-    } catch (error) {
-      console.error("Error fetching suggestions:", error);
-      setSuggestions([]);
-    }
-  };
+  const handleInputValueChange = useCallback(
+    debounce(async (inputValue: string | null) => {
+      const trimmedValue = inputValue?.trim() || "";
+      setWord(trimmedValue);
+  
+      if (trimmedValue) {
+        try {
+          const data = await fetchSuggestions(trimmedValue);
+          setSuggestions(data);
+        } catch (error) {
+          console.error("Error fetching suggestions:", error);
+        }
+      } else {
+        setSuggestions([]);
+      }
+    }, 100), []
+  );
 
-  const handleInputValueChange = (inputValue: string | null) => {
-    setWord(inputValue || "");
-    if (inputValue && inputValue.trim() !== "") {
-      fetchSuggestions(inputValue);
-    } else {
-      setSuggestions([]);
-    }
-  };
-
+  useEffect(() => {
+    return () => {
+      handleInputValueChange.cancel();
+    };
+  }, []);
+  
   const generateOrderId = async (amount: number) => {
     try {
       const response = await axios.post(

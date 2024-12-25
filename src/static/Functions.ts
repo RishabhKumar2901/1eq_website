@@ -1,5 +1,6 @@
-import { db } from '../../Firebase';
+import { db } from '../Firebase';
 import { doc, setDoc, collection, addDoc, getDocs } from 'firebase/firestore';
+import axios from "axios";
 
 /**
  * Generic function to store data in Firestore
@@ -36,6 +37,18 @@ export const fetchAllData = async (collectionName: string) => {
     return data;
   } catch (error) {
     console.error(`Error fetching data from ${collectionName}:`, error);
+    return [];
+  }
+};
+
+export const fetchSuggestions = async (value: string) => {
+  try {
+    const { data } = await axios.get(`https://api.datamuse.com/words`, {
+      params: { sp: `${value}*`, max: 10 },
+    });
+    return data.map((item: { word: string }) => item.word);
+  } catch (error) {
+    console.error("Error fetching suggestions:", error);
     return [];
   }
 };

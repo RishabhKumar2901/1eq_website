@@ -19,7 +19,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/userdistribution" element={<UserMap />} />
         <Route
-          path="/createword"
+          path="/manageword"
           element={<AddWordForm />}
         />
         <Route

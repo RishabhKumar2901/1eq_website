@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { storeData, fetchAllData } from '../utils/firestoreUtils';
+import { storeData, fetchAllData } from '../../static/Functions';
 
 interface DataState {
   items: any[];
