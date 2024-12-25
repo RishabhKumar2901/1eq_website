@@ -58,12 +58,20 @@ const Navbar = ({ onRefreshClick }: NavbarProps) => {
         User Distribution
       </div>
       {role == ROLE_ADMIN &&
+      <>
+       <div
+          className="text-2xl font-bold cursor-pointer"
+          onClick={() => handleNavigation("/createword")}
+        >
+          Create Word
+        </div>
         <div
           className="text-2xl font-bold cursor-pointer"
           onClick={() => handleNavigation("/chatadmindashboard")}
         >
           Admin Chat Dashboard
         </div>
+        </>
       }
       {role == ROLE_EMPLOYEE &&
         <div

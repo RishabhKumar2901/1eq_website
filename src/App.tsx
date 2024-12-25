@@ -9,6 +9,7 @@ import AssignWord from "./pages/AssignWord";
 import PurchasedWords from "./pages/PurchasedWords";
 import ChatAdminDashboard from "./pages/ChatAdminDashboard";
 import ChatEmployeeDashboard from "./pages/ChatEmployeeDashboard";
+import AddWordForm from "./pages/AddWordForm";
 
 function App() {
 
@@ -17,6 +18,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/userdistribution" element={<UserMap />} />
+        <Route
+          path="/createword"
+          element={<AddWordForm />}
+        />
         <Route
           path="/assignword"
           element={<AssignWord />}
