@@ -17,8 +17,8 @@ const HeatMap = () => {
                 complete: (result: any) => {
                     const stateCount: PinCodeCount = { ...statePinCodeCount };
                     const headers = result.meta.fields || [];
-                    const stateIndex = headers.indexOf("statename");
-                    const pincodeIndex = headers.indexOf("pincode");
+                    const stateIndex = headers.indexOf("State");
+                    const pincodeIndex = headers.indexOf("Pincode");
 
                     if (stateIndex === -1 || pincodeIndex === -1) {
                         console.error("Missing 'statename' or 'pincode' in CSV.");

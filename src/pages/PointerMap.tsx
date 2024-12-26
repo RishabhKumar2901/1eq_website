@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Papa from "papaparse";
-import { PincodeData } from "../PincodeData2";
+import { PincodeData } from "../PincodeData";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { getUserCountByPincode } from "../static/Functions";
 
@@ -60,6 +60,7 @@ const PointerMap = () => {
                                     pinCodeCount[pincode]
                                 ).toString();
                             }
+                            delete pinCodeCount[pincode];
                         }
                     });
 
