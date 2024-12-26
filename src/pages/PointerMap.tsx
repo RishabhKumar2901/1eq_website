@@ -96,8 +96,8 @@ const PointerMap = () => {
                             <Marker key={data?.Id} position={[data?.Latitude, data?.Longitude]}>
                                 <Popup>
                                     <div>
-                                        <p>{data?.State}</p>
-                                        <p>{data?.Area}</p>
+                                        <p>State: {data?.State}</p>
+                                        <p>City/Area: {data?.Area}</p>
                                         <p>Total Users: {data?.Total_Users}</p>
                                     </div>
                                 </Popup>
