@@ -1,5 +1,5 @@
-import { db } from '../Firebase';
-import { doc, setDoc, collection, addDoc, getDocs } from 'firebase/firestore';
+import { app, db } from '../Firebase';
+import { doc, setDoc, collection, addDoc, getDocs, getFirestore } from 'firebase/firestore';
 import axios from "axios";
 
 /**
@@ -51,4 +51,19 @@ export const fetchSuggestions = async (value: string) => {
     console.error("Error fetching suggestions:", error);
     return [];
   }
+};
+
+type PinCodeCount = Record<string, number>;
+export const getUserCountByPincode = async (): Promise<PinCodeCount> => {
+  const db = getFirestore(app);
+  const userSnapshot = await getDocs(collection(db, "users"));
+  const pinCodeCount: PinCodeCount = {};
+
+  userSnapshot.forEach((doc) => {
+    const userData = doc.data();
+    const pincode = userData?.pincode;
+    pinCodeCount[pincode] = (pinCodeCount[pincode] || 0) + 1;
+  });
+
+  return pinCodeCount;
 };

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import Downshift from "downshift";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { addData, fetchData } from "../redux/slices/dataSlice";
 import { db } from "../Firebase";
@@ -10,7 +9,6 @@ import Navbar from "../components/Navbar";
 import Chatbot from "./Chatbot";
 import { fetchSuggestions } from "../static/Functions";
 import debounce from "lodash.debounce";
-import Razorpay from "razorpay";
 
 const AssignWord = () => {
   const [word, setWord] = useState("");
