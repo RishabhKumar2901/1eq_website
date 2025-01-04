@@ -103,7 +103,12 @@ const HeatMap: React.FC = () => {
       label.textAlign = "middle";
       label.fontSize = 14;
       // label.fill = am4core.color("#FFFFFF");
-      label.nonScaling = true;
+      // label.nonScaling = true;
+
+      chart.events.on("zoomlevelchanged", () => {
+        const zoomLevel = chart.zoomLevel;
+        label.fontSize = Math.max(14, 16 * zoomLevel);
+      });
 
       imageSeries.data = polygonSeries.data.map((item: any) => {
         const stateFeature = chart.geodata.features.find(
